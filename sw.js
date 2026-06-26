@@ -2,9 +2,8 @@ const CACHE_NAME = 'home-cache-v1';
 const urlsToCache = [
   './',
   './index.html',
-  // 如果你有独立的css/js/图片文件，把相对路径加在这里
-  // './style.css',
-  // './script.js'
+  './1.jpg',
+  './2.gif'
 ];
 
 // 安装时缓存静态资源
