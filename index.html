@@ -36,8 +36,10 @@
         /* ======== 导航网格 (彻底修复对齐与居中) ======== */
         .nav-grid-container { width: 90%; max-width: 400px; max-height: 240px; overflow-y: auto; margin-bottom: 10px; flex-shrink: 0; scrollbar-width: none; -ms-overflow-style: none; }
         .nav-grid-container::-webkit-scrollbar { display: none; }
-        .nav-grid { display: grid; grid-template-columns: repeat(4, 1fr); row-gap: 20px; padding-bottom: 10px; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #333; font-size: 12px; position: relative; }
+        /* 增加了 align-items: start 解决不同图标高度带来的网格错位 */
+        .nav-grid { display: grid; grid-template-columns: repeat(4, 1fr); row-gap: 20px; padding-bottom: 10px; align-items: start; }
+        /* 增加了 justify-content: flex-start 和 vertical-align: top 解决内部对齐 */
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; vertical-align: top; text-decoration: none; color: #333; font-size: 12px; position: relative; }
         
         /* 外层容器相对定位，保证子元素绝对居中不偏移 */
         .nav-icon { width: 48px; height: 48px; border-radius: 14px; margin-bottom: 8px; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: transform 0.15s; }
@@ -178,11 +180,11 @@
                 a.href = isEditMode ? 'javascript:void(0)' : item.url; 
                 let host = new URL(item.url).hostname;
                 
-                // 使用 vvhan 接口并完美处理居中与错误回退
+                // 【修改点】：替换了原本失效的 API，改为直接请求根目录 favicon.ico
                 a.innerHTML = `
                     <div class="nav-icon" style="background:${item.bg}" id="iconBox-${index}">
                         <div class="fallback-text" id="fb-${index}">${item.text}</div>
-                        <img class="real-icon" src="https://api.vvhan.com/api/ico?url=${host}" referrerpolicy="no-referrer" 
+                        <img class="real-icon" src="https://${host}/favicon.ico" referrerpolicy="no-referrer" 
                              onload="this.style.opacity='1'; document.getElementById('fb-${index}').style.opacity='0'; this.parentElement.style.background='#fff';" 
                              onerror="this.style.display='none'; document.getElementById('fb-${index}').style.opacity='1';">
                         <div class="delete-badge" onclick="deleteShortcut(${index}, event)">✕</div>
