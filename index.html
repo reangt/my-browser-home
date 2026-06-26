@@ -231,5 +231,16 @@
 
         renderGrid(); fetchQuote();
     </script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').then(registration => {
+            console.log('缓存服务注册成功，以后页面将秒开！');
+          }).catch(err => {
+            console.log('注册失败: ', err);
+          });
+        });
+      }
+    </script>
 </body>
 </html>
