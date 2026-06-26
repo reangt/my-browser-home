@@ -8,12 +8,13 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; transition: background-color 0.5s; -webkit-tap-highlight-color: transparent; }
         
+        /* 顶部图片 (直接读取 GitHub 仓库里的本地文件) */
         .header-image { width: 100%; max-width: 500px; margin-top: 20px; flex-shrink: 0; }
         .header-image img { width: 100%; display: block; pointer-events: none; }
         .logo { width: 150px; margin-top: -10px; margin-bottom: 20px; z-index: 10; flex-shrink: 0; }
         .logo img { width: 100%; pointer-events: none; }
         
-        /* ======== 高级感搜索框 (纯图标+向右箭头) ======== */
+        /* ======== 搜索框 ======== */
         .search-container { width: 85%; max-width: 400px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border-radius: 12px; background: #fbfbfb; display: flex; align-items: center; padding: 6px 15px; flex-shrink: 0; position: relative; border: 1px solid #f0f0f0; transition: box-shadow 0.3s; }
         .search-container:focus-within { box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-color: #e2e8f0; }
         
@@ -32,17 +33,19 @@
         .search-right-icon { display: flex; align-items: center; justify-content: center; margin-left: 10px; cursor: pointer; padding: 5px; border-radius: 50%; transition: background 0.2s; }
         .search-right-icon:active { background: #f0f0f0; }
         
-        /* ======== 导航网格 (图标强制居中修复) ======== */
+        /* ======== 导航网格 (彻底修复对齐与居中) ======== */
         .nav-grid-container { width: 90%; max-width: 400px; max-height: 240px; overflow-y: auto; margin-bottom: 10px; flex-shrink: 0; scrollbar-width: none; -ms-overflow-style: none; }
         .nav-grid-container::-webkit-scrollbar { display: none; }
         .nav-grid { display: grid; grid-template-columns: repeat(4, 1fr); row-gap: 20px; padding-bottom: 10px; }
         .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #333; font-size: 12px; position: relative; }
         
+        /* 外层容器相对定位，保证子元素绝对居中不偏移 */
         .nav-icon { width: 48px; height: 48px; border-radius: 14px; margin-bottom: 8px; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: transform 0.15s; }
         .nav-item:active .nav-icon { transform: scale(0.92); }
-        /* 强制图片居中且保持比例 */
-        .real-icon { width: 28px; height: 28px; object-fit: contain; opacity: 0; transition: opacity 0.3s; z-index: 2; }
-        .fallback-text { font-size: 16px; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; position: absolute; z-index: 1; transition: opacity 0.3s; }
+        
+        /* 真实图标与备用文字全部绝对定位，重叠在一起 */
+        .fallback-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; color: white; z-index: 1; transition: opacity 0.3s; }
+        .real-icon { position: absolute; width: 28px; height: 28px; object-fit: contain; opacity: 0; z-index: 2; transition: opacity 0.3s; }
 
         .delete-badge { position: absolute; top: -5px; right: 5px; width: 20px; height: 20px; background: #ff4d4f; color: white; border-radius: 50%; font-size: 12px; display: flex; justify-content: center; align-items: center; display: none; z-index: 5; }
         .edit-mode .delete-badge { display: flex; animation: shake 0.5s infinite alternate; }
@@ -51,7 +54,7 @@
         .controls { display: flex; gap: 15px; margin-bottom: 15px; font-size: 13px; color: #888; flex-shrink: 0; }
         .controls span { padding: 5px 12px; border-radius: 12px; background: #f5f5f5; cursor: pointer; transition: background 0.2s; }
         
-        /* ======== 底部区域 (双空间 + 一言) ======== */
+        /* ======== 底部区域 ======== */
         .footer { margin-top: auto; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; width: 90%; max-width: 360px; flex-shrink: 0; }
         .secret-divider { font-size: 14px; color: #999; margin-bottom: 5px; cursor: pointer; user-select: none; letter-spacing: 4px; display: flex; align-items: center; }
         .secret-divider .flower { font-size: 18px; display: inline-block; transition: all 0.5s ease; padding: 0 10px; }
@@ -59,7 +62,6 @@
         .hitokoto-text { width: 100%; cursor: pointer; padding: 10px 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; min-height: 60px; }
         .hitokoto-text:active { background: #f8f9fa; }
 
-        /* 发车区暗黑模式微调 */
         .drive-mode-body { background-color: #fafbfc; }
         .drive-mode-body .secret-divider .flower { color: #ff7675; transform: rotate(180deg); }
 
@@ -124,7 +126,7 @@
     </div>
 
     <script>
-        // ======== 1. 搜索引擎逻辑 (SVG) ========
+        // ======== 搜索引擎 ========
         const svgIcons = {
             google: `<svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>`,
             bing: `<svg viewBox="0 0 24 24" width="18" height="18"><path fill="#00809D" d="M3.5 3v15l5.5 2.5V11l9-4v9l-9 4.5v3.5l12-5.5V3z"/></svg>`,
@@ -135,21 +137,17 @@
         const engines = { google: { url: 'https://www.google.com/search', param: 'q' }, bing: { url: 'https://cn.bing.com/search', param: 'q' }, baidu: { url: 'https://www.baidu.com/s', param: 'wd' } };
         function toggleDropdown(e) { e.stopPropagation(); document.getElementById('customSelect').classList.toggle('active'); }
         function selectEngine(id, e) {
-            e.stopPropagation(); 
-            document.getElementById('currentEngineIcon').innerHTML = svgIcons[id]; 
-            document.getElementById('searchForm').action = engines[id].url; 
-            document.getElementById('searchInput').name = engines[id].param; 
-            document.getElementById('customSelect').classList.remove('active'); 
-            localStorage.setItem('defaultEngine', id); 
+            e.stopPropagation(); document.getElementById('currentEngineIcon').innerHTML = svgIcons[id]; 
+            document.getElementById('searchForm').action = engines[id].url; document.getElementById('searchInput').name = engines[id].param; 
+            document.getElementById('customSelect').classList.remove('active'); localStorage.setItem('defaultEngine', id); 
         }
         document.addEventListener('click', () => document.getElementById('customSelect').classList.remove('active'));
 
         let savedEngine = localStorage.getItem('defaultEngine') || 'google';
         document.getElementById('currentEngineIcon').innerHTML = svgIcons[savedEngine];
-        document.getElementById('searchForm').action = engines[savedEngine].url;
-        document.getElementById('searchInput').name = engines[savedEngine].param;
+        document.getElementById('searchForm').action = engines[savedEngine].url; document.getElementById('searchInput').name = engines[savedEngine].param;
 
-        // ======== 2. 导航双空间与图标渲染 ========
+        // ======== 导航与完美图标渲染 ========
         const defaultData = {
             main: [
                 { name: '必应', url: 'https://cn.bing.com', text: '必', bg: '#0078D7' },
@@ -167,15 +165,12 @@
         function switchMode() {
             currentMode = currentMode === 'main' ? 'drive' : 'main';
             document.getElementById('mainBody').className = currentMode === 'drive' ? 'drive-mode-body' : '';
-            if (isEditMode) toggleEditMode();
-            renderGrid();
+            if (isEditMode) toggleEditMode(); renderGrid();
         }
 
         function renderGrid() {
-            const grid = document.getElementById('navGrid');
-            grid.innerHTML = '';
-            if (isEditMode) grid.classList.add('edit-mode');
-            else grid.classList.remove('edit-mode');
+            const grid = document.getElementById('navGrid'); grid.innerHTML = '';
+            if (isEditMode) grid.classList.add('edit-mode'); else grid.classList.remove('edit-mode');
 
             bookmarks[currentMode].forEach((item, index) => {
                 const a = document.createElement('a');
@@ -183,12 +178,13 @@
                 a.href = isEditMode ? 'javascript:void(0)' : item.url; 
                 let host = new URL(item.url).hostname;
                 
+                // 使用 vvhan 接口并完美处理居中与错误回退
                 a.innerHTML = `
                     <div class="nav-icon" style="background:${item.bg}" id="iconBox-${index}">
                         <div class="fallback-text" id="fb-${index}">${item.text}</div>
-                        <img class="real-icon" src="https://favicon.qqtn.com/ico/${host}" referrerpolicy="no-referrer" 
+                        <img class="real-icon" src="https://api.vvhan.com/api/ico?url=${host}" referrerpolicy="no-referrer" 
                              onload="this.style.opacity='1'; document.getElementById('fb-${index}').style.opacity='0'; this.parentElement.style.background='#fff';" 
-                             onerror="this.style.display='none';">
+                             onerror="this.style.display='none'; document.getElementById('fb-${index}').style.opacity='1';">
                         <div class="delete-badge" onclick="deleteShortcut(${index}, event)">✕</div>
                     </div>
                     <span>${item.name}</span>
@@ -201,63 +197,39 @@
         function deleteShortcut(i, e) { e.preventDefault(); e.stopPropagation(); bookmarks[currentMode].splice(i, 1); localStorage.setItem('dualBookmarks', JSON.stringify(bookmarks)); renderGrid(); }
 
         function openModal() {
-            document.getElementById('modalTitle').innerText = currentMode === 'main' ? "添加新网址 (主页)" : "添加新网址 (发车区)";
-            let modal = document.getElementById('addModal');
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('show'), 10);
+            document.getElementById('modalTitle').innerText = currentMode === 'main' ? "添加新网址" : "添加发车网址";
+            let modal = document.getElementById('addModal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
         }
         function closeModal() { 
-            let modal = document.getElementById('addModal');
-            modal.classList.remove('show');
+            let modal = document.getElementById('addModal'); modal.classList.remove('show');
             setTimeout(() => { modal.style.display = 'none'; document.getElementById('siteName').value = ''; document.getElementById('siteUrl').value = ''; }, 200);
         }
         function saveShortcut() {
-            const name = document.getElementById('siteName').value.trim();
-            let url = document.getElementById('siteUrl').value.trim();
-            if (!name || !url) return alert('不能为空！');
-            if (!url.startsWith('http')) url = 'https://' + url;
+            const name = document.getElementById('siteName').value.trim(); let url = document.getElementById('siteUrl').value.trim();
+            if (!name || !url) return alert('不能为空！'); if (!url.startsWith('http')) url = 'https://' + url;
             bookmarks[currentMode].push({ name, url, text: name.substring(0, 1), bg: colors[Math.floor(Math.random() * colors.length)] });
-            localStorage.setItem('dualBookmarks', JSON.stringify(bookmarks));
-            renderGrid(); closeModal();
+            localStorage.setItem('dualBookmarks', JSON.stringify(bookmarks)); renderGrid(); closeModal();
         }
 
-        // ======== 3. 一言动态文字逻辑 (完整修复版) ========
+        // ======== 一言动态文字 ========
         let isDynamicQuote = localStorage.getItem('isDynamicQuote') !== 'false';
         const defaultKaomoji = '— ( * ^ ヮ ^ * ) —';
 
         function fetchQuote() {
             const quoteEl = document.getElementById('quoteText');
-            if (!isDynamicQuote) { 
-                quoteEl.innerHTML = `<div style="font-size:14px; color:#777; letter-spacing:2px; text-align:center;">${defaultKaomoji}</div>`; 
-                return; 
-            }
-            fetch('https://v1.hitokoto.cn')
-                .then(res => res.json())
-                .then(data => { 
-                    let sourceStr = data.from_who && data.from ? `—— ${data.from_who}「${data.from}」` : (data.from ? `—— 「${data.from}」` : (data.from_who ? `—— ${data.from_who}` : ''));
-                    quoteEl.innerHTML = `
-                        <div style="font-size:13.5px; color:#4a4a4a; line-height:1.6; letter-spacing:1px; margin-bottom:6px; text-align:center;">『 ${data.hitokoto} 』</div>
-                        ${sourceStr ? `<div style="font-size:11px; color:#999; text-align:right; padding-right:5px;">${sourceStr}</div>` : ''}
-                    `;
-                })
-                .catch(() => { quoteEl.innerHTML = `<div style="font-size:13.5px; color:#4a4a4a; text-align:center;">『 偷得浮生半日闲~ 』</div>`; });
+            if (!isDynamicQuote) { quoteEl.innerHTML = `<div style="font-size:14px; color:#777; letter-spacing:2px; text-align:center;">${defaultKaomoji}</div>`; return; }
+            fetch('https://v1.hitokoto.cn').then(res => res.json()).then(data => { 
+                let sourceStr = data.from_who && data.from ? `—— ${data.from_who}「${data.from}」` : (data.from ? `—— 「${data.from}」` : (data.from_who ? `—— ${data.from_who}` : ''));
+                quoteEl.innerHTML = `<div style="font-size:13.5px; color:#4a4a4a; line-height:1.6; letter-spacing:1px; margin-bottom:6px; text-align:center;">『 ${data.hitokoto} 』</div>${sourceStr ? `<div style="font-size:11px; color:#999; text-align:right; padding-right:5px;">${sourceStr}</div>` : ''}`;
+            }).catch(() => { quoteEl.innerHTML = `<div style="font-size:13.5px; color:#4a4a4a; text-align:center;">『 偷得浮生半日闲~ 』</div>`; });
         }
 
-        // 绑定到 HTML onClick 的核心函数
         function toggleTextMode() {
-            isDynamicQuote = !isDynamicQuote;
-            localStorage.setItem('isDynamicQuote', isDynamicQuote);
-            if (isDynamicQuote) {
-                document.getElementById('quoteText').innerHTML = `<div style="font-size:12px; color:#999; text-align:center;">加载中...</div>`;
-                fetchQuote();
-            } else {
-                fetchQuote();
-            }
+            isDynamicQuote = !isDynamicQuote; localStorage.setItem('isDynamicQuote', isDynamicQuote);
+            if (isDynamicQuote) { document.getElementById('quoteText').innerHTML = `<div style="font-size:12px; color:#999; text-align:center;">加载中...</div>`; fetchQuote(); } else { fetchQuote(); }
         }
 
-        // 初始化
-        renderGrid();
-        fetchQuote();
+        renderGrid(); fetchQuote();
     </script>
 </body>
 </html>
